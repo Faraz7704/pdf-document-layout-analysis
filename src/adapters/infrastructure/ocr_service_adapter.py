@@ -8,15 +8,21 @@ from adapters.infrastructure.ocr.languages import iso_to_tesseract, supported_la
 
 
 class OCRServiceAdapter(OCRService):
-    def process_pdf_ocr(self, filename: str, namespace: str, language: str = "en") -> Path:
+    def process_pdf_ocr(self, filename: str, namespace: str, languages: str | list[str] = "en") -> Path:
         source_pdf_filepath, processed_pdf_filepath, failed_pdf_filepath = self._get_paths(namespace, filename)
         os.makedirs(processed_pdf_filepath.parent, exist_ok=True)
+
+        # Convert ISO to Tesseract codes
+        if isinstance(languages, list):
+            lang_str = "+".join(iso_to_tesseract[lang] for lang in languages)
+        else:
+            lang_str = iso_to_tesseract[languages]
 
         result = subprocess.run(
             [
                 "ocrmypdf",
                 "-l",
-                iso_to_tesseract[language],
+                lang_str,
                 source_pdf_filepath,
                 processed_pdf_filepath,
                 "--force-ocr",

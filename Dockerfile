@@ -2,26 +2,23 @@ FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-runtime
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 RUN apt-get update
-RUN apt-get install --fix-missing -y -q --no-install-recommends libgomp1 ffmpeg libsm6 pdftohtml libxext6 git ninja-build g++ qpdf pandoc
+RUN apt-get install --fix-missing -y -q --no-install-recommends gnupg2 dirmngr software-properties-common lsb-release wget libgomp1 ffmpeg libsm6 libxext6 pdftohtml git ninja-build g++ qpdf pandoc
 
+RUN add-apt-repository ppa:alex-p/tesseract-ocr5 && apt-get update
 
-RUN apt-get install -y ocrmypdf
-RUN apt-get install -y tesseract-ocr-fra
-RUN apt-get install -y tesseract-ocr-spa
-RUN apt-get install -y tesseract-ocr-deu
-RUN apt-get install -y tesseract-ocr-ara
-RUN apt-get install -y tesseract-ocr-mya
-RUN apt-get install -y tesseract-ocr-hin
-RUN apt-get install -y tesseract-ocr-tam
-RUN apt-get install -y tesseract-ocr-tha
-RUN apt-get install -y tesseract-ocr-chi-sim
-RUN apt-get install -y tesseract-ocr-tur
-RUN apt-get install -y tesseract-ocr-ukr
-RUN apt-get install -y tesseract-ocr-ell
-RUN apt-get install -y tesseract-ocr-rus
-RUN apt-get install -y tesseract-ocr-kor
-RUN apt-get install -y tesseract-ocr-kor-vert
-
+RUN apt-get install -y ocrmypdf tesseract-ocr \
+    tesseract-ocr-fra \
+    tesseract-ocr-spa \
+    tesseract-ocr-deu \
+    tesseract-ocr-ara \
+    tesseract-ocr-mya \
+    tesseract-ocr-hin \
+    tesseract-ocr-tam \
+    tesseract-ocr-tha \
+    tesseract-ocr-chi-sim \
+    tesseract-ocr-tur \
+    tesseract-ocr-ukr \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /app/src
 RUN mkdir -p /app/models
@@ -39,7 +36,6 @@ RUN uv pip install --upgrade pip
 RUN uv pip install -r requirements.txt
 
 WORKDIR /app
-
 RUN cd src; git clone https://github.com/facebookresearch/detectron2;
 RUN cd src/detectron2; git checkout 70f454304e1a38378200459dd2dbca0f0f4a5ab4; python setup.py build develop
 RUN uv pip install pycocotools==2.0.8

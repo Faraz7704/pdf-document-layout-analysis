@@ -1,7 +1,7 @@
 import sys
 import subprocess
 from fastapi import UploadFile, File, Form
-from typing import Optional, Union
+from typing import List, Optional, Union
 from starlette.responses import Response
 from starlette.concurrency import run_in_threadpool
 from use_cases.pdf_analysis.analyze_pdf_use_case import AnalyzePDFUseCase
@@ -82,8 +82,8 @@ class FastAPIControllers:
     async def get_visualization_endpoint(self, file: UploadFile = File(...), fast: bool = Form(False)):
         return await run_in_threadpool(self.create_visualization_use_case.execute, file, fast)
 
-    async def ocr_pdf_sync(self, file: UploadFile = File(...), language: str = Form("en")):
-        return await run_in_threadpool(self.process_ocr_use_case.execute, file, language)
+    async def ocr_pdf_sync(self, file: UploadFile = File(...), languages: List[str] = Form("en")):
+        return await run_in_threadpool(self.process_ocr_use_case.execute, file, languages)
 
     async def convert_to_markdown_endpoint(
         self,
