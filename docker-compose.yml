@@ -9,3 +9,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5060:5060"
+    networks:
+      - common_net
+
+networks:
+  common_net:
+    external: true
+    name: common_network
