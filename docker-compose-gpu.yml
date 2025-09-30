@@ -12,3 +12,10 @@ services:
               capabilities: [ gpu ]
     environment:
       - RESTART_IF_NO_GPU=$RESTART_IF_NO_GPU
+    networks:
+      - common_net
+
+networks:
+  common_net:
+    external: true
+    name: common_network

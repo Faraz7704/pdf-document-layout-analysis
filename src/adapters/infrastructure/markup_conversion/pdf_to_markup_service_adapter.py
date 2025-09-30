@@ -3,6 +3,7 @@ import tempfile
 import zipfile
 import io
 import json
+from statistics import StatisticsError
 from fitz import Page
 from pathlib import Path
 from typing import Optional, Union
@@ -320,8 +321,16 @@ class PdfToMarkupServiceAdapter:
     ) -> str:
         pdf_labels: PdfLabels = self._create_pdf_labels_from_segments(vgt_segments)
         pdf_features: PdfFeatures = PdfFeatures.from_pdf_path(pdf_path)
+        if pdf_features is None:
+            raise ValueError(f"Failed to extract PDF features from {pdf_path}")
+        
         pdf_features.set_token_types(pdf_labels)
-        pdf_features.set_token_styles()
+        
+        try:
+            pdf_features.set_token_styles()
+        except StatisticsError as e:
+            # Handle case when PDF has no text elements with height data
+            print(f"Warning: Could not set token styles due to empty data: {e}")
 
         self._set_segment_ids(vgt_segments)
         content_parts: list[str] = []

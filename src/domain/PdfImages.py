@@ -46,6 +46,10 @@ class PdfImages:
 
         pdf_features: PdfFeatures = PdfFeatures.from_pdf_path(pdf_path, xml_path)
 
+        # Handle case where PdfFeatures.from_pdf_path returns None
+        if pdf_features is None:
+            raise ValueError(f"Failed to extract features from PDF: {pdf_path}. Document may be empty or corrupted.")
+
         if pdf_name:
             pdf_features.file_name = pdf_name
         else:

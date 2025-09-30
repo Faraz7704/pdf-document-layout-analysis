@@ -32,6 +32,8 @@ class VGTModelAdapter(MLModelService):
         get_annotations(pdf_images)
 
         self._register_data()
+        # Set model to evaluation mode to fix the RPN training mode error
+        model.eval()
         VGTTrainer.test(configuration, model)
 
         predicted_segments = get_most_probable_pdf_segments("doclaynet", pdf_images, False)

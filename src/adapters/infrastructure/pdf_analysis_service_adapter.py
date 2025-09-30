@@ -27,12 +27,18 @@ class PDFAnalysisServiceAdapter(PDFAnalysisService):
         pdf_path = self.file_repository.save_pdf(pdf_content)
         service_logger.info("Creating PDF images")
 
-        pdf_images_list: list[PdfImages] = [PdfImages.from_pdf_path(pdf_path, "", xml_filename)]
+        pdf_images = PdfImages.from_pdf_path(pdf_path, "", xml_filename)
+        if pdf_images is None:
+            raise ValueError(f"Failed to process PDF file: {pdf_path}")
+        
+        pdf_images_list: list[PdfImages] = [pdf_images]
 
         predicted_segments = self.vgt_model_service.predict_document_layout(pdf_images_list)
 
         if parse_tables_and_math:
             pdf_images_200_dpi = PdfImages.from_pdf_path(pdf_path, "", xml_filename, dpi=200)
+            if pdf_images_200_dpi is None:
+                raise ValueError(f"Failed to process PDF file at 200 DPI: {pdf_path}")
             self.format_conversion_service.convert_formula_to_latex(pdf_images_200_dpi, predicted_segments)
             self.format_conversion_service.convert_table_to_html(pdf_images_200_dpi, predicted_segments)
 
